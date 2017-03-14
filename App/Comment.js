@@ -15,10 +15,6 @@ const styles = StyleSheet.create({
 
 export default Comment = ({ level, content, user, timeAgo }) =>
   <View style={{ paddingLeft: level * 10 + 10 }}>
-    <View style={{ paddingBottom: 0 }}>
-      <Text style={{ fontWeight: 'bold', color: '#888888' }}>{user}, {timeAgo}</Text>
-    </View>
-    <View>
-      <Text>{content}</Text>
-    </View>
+    <Text style={{ fontWeight: 'bold', color: '#888888' }}>{user}, {timeAgo}</Text>
+    <Text>{content}</Text>
   </View>

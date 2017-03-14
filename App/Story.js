@@ -11,6 +11,7 @@ const styles = StyleSheet.create({
     flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
+    backgroundColor: '#FFFFFF',
   },
   position: {
     fontSize: 30,

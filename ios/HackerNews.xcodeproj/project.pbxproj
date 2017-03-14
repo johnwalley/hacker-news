@@ -1005,7 +1005,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = HackerNews;
+				PRODUCT_NAME = "Hacker News";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Debug;
@@ -1022,7 +1022,7 @@
 					"-ObjC",
 					"-lc++",
 				);
-				PRODUCT_NAME = HackerNews;
+				PRODUCT_NAME = "Hacker News";
 				VERSIONING_SYSTEM = "apple-generic";
 			};
 			name = Release;

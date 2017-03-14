@@ -9,7 +9,10 @@ import {
   View,
   WebView,
 } from 'react-native';
-import { StackNavigator } from 'react-navigation';
+import {
+  StackNavigator,
+  TabNavigator,
+} from 'react-navigation';
 
 import Story from './Story';
 import Comment from './Comment';
@@ -41,23 +44,26 @@ async function fetchItem(id) {
 }
 
 function flattenComments(item) {
+  function traverse(item, list) {
+    list.push(item);
+    item.comments.map(it => traverse(it, list));
+  }
+
   const list = [];
   item.comments.map(it => traverse(it, list));
 
   return list;
 }
 
-function traverse(item, list) {
-  list.push(item);
-  item.comments.map(it => traverse(it, list));
-}
-
 function transformCommentText(text) {
   return String(text)
+    .replace(/^<p>/, '')
     .replace(/<p>/g, '\n\n')
     .replace(/&#x27;/g, '\'')
     .replace(/&#x2F;/g, '/')
     .replace(/&quot;/g, '"')
+    .replace('<i>', '')
+    .replace('</i>', '')
     .replace(/&gt;/g, '>')
     .replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)" rel="nofollow">(.*)?<\/a>/g, "$1");
 }
@@ -76,13 +82,14 @@ class HomeScreen extends Component {
     this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
     this.state = {
-      refreshing: false,
+      refreshing: true,
       dataSource: this.ds.cloneWithRows([])
     };
 
     fetchTopStories()
       .then(stories => {
         this.setState({
+          refreshing: false,
           dataSource: this.ds.cloneWithRows(stories)
         });
       })
@@ -98,7 +105,7 @@ class HomeScreen extends Component {
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) => (
             <Story
-              onPress={() => navigate('Comments', { post: rowData })}
+              onPress={() => navigate('CommentsArticle', { post: rowData })}
               position={+rowID + 1}
               title={rowData.title}
               points={rowData.points}
@@ -150,6 +157,9 @@ class CommentsScreen extends React.Component {
       tintColor: '#FFFFFF',
       style: styles.toolbar,
     },
+    tabBar: {
+      label: 'Comments',
+    }
   };
 
   constructor(props) {
@@ -158,13 +168,14 @@ class CommentsScreen extends React.Component {
     this.ds = new ListView.DataSource({ rowHasChanged: (r1, r2) => r1 !== r2 });
 
     this.state = {
-      refreshing: false,
+      refreshing: true,
       dataSource: this.ds.cloneWithRows([])
     };
 
     fetchItem(props.navigation.state.params.post.id)
       .then(item => {
         this.setState({
+          refreshing: false,
           dataSource: this.ds.cloneWithRows(flattenComments(item))
         });
       })
@@ -177,12 +188,6 @@ class CommentsScreen extends React.Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <View style={{ margin: 20 }}>
-          <TouchableHighlight
-            onPress={() => navigate('Article', { post: params.post })}>
-            <Text style={{ fontSize: 28, fontWeight: 'bold', textAlign: 'center' }}>Article</Text>
-          </TouchableHighlight>
-        </View>
         <ListView
           dataSource={this.state.dataSource}
           renderRow={(rowData) => (
@@ -228,6 +233,13 @@ class CommentsScreen extends React.Component {
 class ArticleScreen extends React.Component {
   static navigationOptions = {
     title: ({ state }) => `${state.params.post.title}`,
+    header: {
+      tintColor: '#FFFFFF',
+      style: styles.toolbar,
+    },
+    tabBar: {
+      label: 'Article',
+    }
   };
 
   render() {
@@ -241,10 +253,27 @@ class ArticleScreen extends React.Component {
   }
 }
 
+const CommentsArticle = TabNavigator(
+  {
+    Comments: { screen: CommentsScreen },
+    Article: { screen: ArticleScreen },
+  },
+  {
+    tabBarOptions: {
+      activeTintColor: '#FFFFFF',
+      labelStyle: {
+        fontSize: 12,
+      },
+      style: {
+        backgroundColor: '#FF6600',
+      },
+    }
+  }
+);
+
 const HackerNews = StackNavigator({
   Home: { screen: HomeScreen },
-  Comments: { screen: CommentsScreen },
-  Article: { screen: ArticleScreen },
+  CommentsArticle: { screen: CommentsArticle },
 });
 
 AppRegistry.registerComponent('HackerNews', () => HackerNews);
