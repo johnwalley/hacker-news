@@ -12,6 +12,8 @@ import {
 import { StackNavigator } from 'react-navigation';
 import moment from 'moment';
 
+const API_ENDPOINT = 'http://node-hnapi.herokuapp.com/';
+
 const styles = StyleSheet.create({
   toolbar: {
     backgroundColor: '#FF6600',
@@ -29,30 +31,34 @@ const styles = StyleSheet.create({
   },
 });
 
-async function getTopStoriesFromApi() {
+async function fetchTopStories(page = 1) {
   try {
-    let response = await fetch('https://hacker-news.firebaseio.com/v0/topstories.json');
-    let responseJson = await response.json();
-    let stories = await getStoriesFromIds(responseJson, 50);
-    return stories;
+    let response = await fetch(API_ENDPOINT + 'news?page=' + page);
+    return await response.json();
   } catch (error) {
     console.error(error);
   }
 }
 
-function getStoriesFromIds(ids, numStories) {
-  return Promise.all(ids.slice(0, numStories).map(id => fetch('https://hacker-news.firebaseio.com/v0/item/' + id + '.json').then(resp => resp.json())));
+async function fetchItem(id) {
+  try {
+    let response = await fetch(API_ENDPOINT + 'item/' + id);
+    return await response.json();
+  } catch (error) {
+    console.error(error);
+  }
 }
 
-function getCommentsFromItem(item, list, level) {
-  if (!item.hasOwnProperty('kids')) {
-    item.kids = [];
-  }
+function flattenComments(item) {
+  const list = [];
+  item.comments.map(it => traverse(it, list));
 
-  return Promise.all(item.kids
-    .map(kid => fetch('https://hacker-news.firebaseio.com/v0/item/' + kid + '.json')
-      .then(resp => resp.json())
-      .then(i => { i.level = level + 1; list.push(i); return getCommentsFromItem(i, list, level + 1) })));
+  return list;
+}
+
+function traverse(item, list) {
+  list.push(item);
+  item.comments.map(it => traverse(it, list));
 }
 
 function transformCommentText(text) {
@@ -83,7 +89,7 @@ class HomeScreen extends Component {
       dataSource: this.ds.cloneWithRows([])
     };
 
-    getTopStoriesFromApi()
+    fetchTopStories()
       .then(stories => {
         this.setState({
           dataSource: this.ds.cloneWithRows(stories)
@@ -104,7 +110,7 @@ class HomeScreen extends Component {
               onPress={() => navigate('Comments', { post: rowData })}>
               <View>
                 <Text style={styles.title}>{rowData.title}</Text>
-                <Text style={styles.details}>{rowData.score} points by {rowData.by} {moment(+rowData.time * 1000).fromNow()} | {rowData.descendants || 0} comments</Text>
+                <Text style={styles.details}>{rowData.points} points by {rowData.user} {rowData.time_ago} | {rowData.comments_count || 0} comments</Text>
               </View>
             </TouchableHighlight>
           )}
@@ -115,6 +121,7 @@ class HomeScreen extends Component {
             />
           }
           renderSeparator={this._renderSeparator}
+          enableEmptySections={true}
         />
       </View>
     );
@@ -122,7 +129,7 @@ class HomeScreen extends Component {
 
   _onRefresh() {
     this.setState({ refreshing: true });
-    getTopStoriesFromApi()
+    fetchTopStories()
       .then(stories => {
         this.setState({
           refreshing: false,
@@ -163,12 +170,10 @@ class CommentsScreen extends React.Component {
       dataSource: this.ds.cloneWithRows([])
     };
 
-    const list = [];
-
-    getCommentsFromItem(props.navigation.state.params.post, list, 0)
-      .then(stories => {
+    fetchItem(props.navigation.state.params.post.id)
+      .then(item => {
         this.setState({
-          dataSource: this.ds.cloneWithRows(list)
+          dataSource: this.ds.cloneWithRows(flattenComments(item))
         });
       })
       .catch(error => console.log(error));
@@ -189,12 +194,12 @@ class CommentsScreen extends React.Component {
         <ListView
           dataSource={this.state.dataSource}
           renderRow={(rowData) => (
-            <View style={{ paddingLeft: rowData.level * 20 }}>
-              <View style={{ paddingBottom: 10 }}>
-                <Text style={{ fontWeight: 'bold', color: '#888888' }}>{rowData.by}, {moment(+rowData.time * 1000).fromNow()}</Text>
+            <View style={{ paddingLeft: rowData.level * 10 + 10 }}>
+              <View style={{ paddingBottom: 0 }}>
+                <Text style={{ fontWeight: 'bold', color: '#888888' }}>{rowData.user}, {rowData.time_ago}</Text>
               </View>
               <View>
-                <Text>{transformCommentText(rowData.text)}</Text>
+                <Text>{transformCommentText(rowData.content)}</Text>
               </View>
             </View>
           )
@@ -206,6 +211,7 @@ class CommentsScreen extends React.Component {
             />
           }
           renderSeparator={this._renderSeparator}
+          enableEmptySections={true}
         />
       </View >
     );
@@ -213,11 +219,11 @@ class CommentsScreen extends React.Component {
 
   _onRefresh() {
     this.setState({ refreshing: true });
-    getStoriesFromIds(this.props.navigation.state.params.post.kids)
-      .then(stories => {
+    fetchItem(this.props.navigation.state.params.post.id)
+      .then(item => {
         this.setState({
           refreshing: false,
-          dataSource: this.ds.cloneWithRows(stories)
+          dataSource: this.ds.cloneWithRows(flattenComments(item))
         });
       });
   }
