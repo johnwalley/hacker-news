@@ -10,24 +10,15 @@ import {
   WebView,
 } from 'react-native';
 import { StackNavigator } from 'react-navigation';
-import moment from 'moment';
+
+import Story from './Story';
+import Comment from './Comment';
 
 const API_ENDPOINT = 'http://node-hnapi.herokuapp.com/';
 
 const styles = StyleSheet.create({
   toolbar: {
     backgroundColor: '#FF6600',
-  },
-  title: {
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'left',
-    margin: 10,
-  },
-  details: {
-    fontSize: 10,
-    textAlign: 'left',
-    margin: 10,
   },
 });
 
@@ -105,14 +96,15 @@ class HomeScreen extends Component {
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(rowData) => (
-            <TouchableHighlight
-              onPress={() => navigate('Comments', { post: rowData })}>
-              <View>
-                <Text style={styles.title}>{rowData.title}</Text>
-                <Text style={styles.details}>{rowData.points} points by {rowData.user} {rowData.time_ago} | {rowData.comments_count || 0} comments</Text>
-              </View>
-            </TouchableHighlight>
+          renderRow={(rowData, sectionID, rowID) => (
+            <Story
+              onPress={() => navigate('Comments', { post: rowData })}
+              position={+rowID + 1}
+              title={rowData.title}
+              points={rowData.points}
+              user={rowData.user}
+              timeAgo={rowData.time_ago}
+              commentsCount={rowData.comments_count} />
           )}
           refreshControl={
             <RefreshControl
@@ -194,16 +186,8 @@ class CommentsScreen extends React.Component {
         <ListView
           dataSource={this.state.dataSource}
           renderRow={(rowData) => (
-            <View style={{ paddingLeft: rowData.level * 10 + 10 }}>
-              <View style={{ paddingBottom: 0 }}>
-                <Text style={{ fontWeight: 'bold', color: '#888888' }}>{rowData.user}, {rowData.time_ago}</Text>
-              </View>
-              <View>
-                <Text>{transformCommentText(rowData.content)}</Text>
-              </View>
-            </View>
-          )
-          }
+            <Comment level={rowData.level} content={transformCommentText(rowData.content)} user={rowData.user} timeAgo={rowData.time_ago} />
+          )}
           refreshControl={
             <RefreshControl
               refreshing={this.state.refreshing}
