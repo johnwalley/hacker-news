@@ -260,11 +260,8 @@ const CommentsArticle = TabNavigator(
   {
     tabBarOptions: {
       activeTintColor: '#FFFFFF',
-      labelStyle: {
-        fontSize: 12,
-      },
       style: {
-        backgroundColor: '#FF6600',
+        backgroundColor: '#aa3300',
       },
     }
   }

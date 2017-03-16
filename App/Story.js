@@ -12,7 +12,7 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
   title: {
-    fontSize: 20,
+    fontSize: 18,
     color: 'black',
     fontWeight: 'bold',
     textAlign: 'left',
