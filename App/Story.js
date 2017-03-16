@@ -8,38 +8,30 @@ import {
 
 const styles = StyleSheet.create({
   container: {
-    flex: 1,
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  position: {
-    fontSize: 30,
-    textAlign: 'right',
-    marginLeft: 10,
-    color: '#BBBBBB',
+    paddingLeft: 10,
+    paddingRight: 10,
   },
   title: {
     fontSize: 20,
+    color: 'black',
     fontWeight: 'bold',
     textAlign: 'left',
-    margin: 10,
+    paddingTop: 5,
+    paddingBottom: 5,
   },
   details: {
-    fontSize: 10,
+    fontSize: 12,
+    color: 'grey',
     textAlign: 'left',
-    margin: 10,
+    paddingBottom: 5,
   },
 });
 
-export default Story = ({ onPress, position, title, points, user, timeAgo, commentsCount }) =>
+export default Story = ({ onPress, title, points, user, timeAgo, commentsCount }) =>
   <TouchableHighlight
     onPress={onPress}>
     <View style={styles.container}>
-      <Text style={styles.position}>{position}</Text>
-      <View>
-        <Text style={styles.title}>{title}</Text>
-        <Text style={styles.details}>{points} points by {user} {timeAgo} | {commentsCount || 0} comments</Text>
-      </View>
+      <Text style={styles.title}>{title}</Text>
+      <Text style={styles.details}>{points} points by {user} {timeAgo} | {commentsCount || 0} comments</Text>
     </View>
   </TouchableHighlight >

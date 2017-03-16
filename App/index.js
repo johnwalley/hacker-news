@@ -62,8 +62,8 @@ function transformCommentText(text) {
     .replace(/&#x27;/g, '\'')
     .replace(/&#x2F;/g, '/')
     .replace(/&quot;/g, '"')
-    .replace('<i>', '')
-    .replace('</i>', '')
+    .replace(/<i>/, '')
+    .replace(/<\/i>/, '')
     .replace(/&gt;/g, '>')
     .replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)" rel="nofollow">(.*)?<\/a>/g, "$1");
 }
@@ -103,10 +103,9 @@ class HomeScreen extends Component {
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(rowData, sectionID, rowID) => (
+          renderRow={(rowData) => (
             <Story
               onPress={() => navigate('CommentsArticle', { post: rowData })}
-              position={+rowID + 1}
               title={rowData.title}
               points={rowData.points}
               user={rowData.user}
