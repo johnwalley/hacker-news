@@ -14,8 +14,8 @@ import {
   TabNavigator,
 } from 'react-navigation';
 
-import Story from './Story';
 import Comment from './Comment';
+import StoriesListView from './StoriesListView';
 
 const API_ENDPOINT = 'http://node-hnapi.herokuapp.com/';
 
@@ -27,8 +27,15 @@ const styles = StyleSheet.create({
 
 async function fetchTopStories(page = 1) {
   try {
-    let response = await fetch(API_ENDPOINT + 'news?page=' + page);
-    return await response.json();
+    const stories = [];
+
+    for (let i = 1; i <= page; i++) {
+      let response = await fetch(API_ENDPOINT + 'news?page=' + i);
+      let json = await response.json();
+      stories = stories.concat(json);
+    }
+
+    return stories;
   } catch (error) {
     console.error(error);
   }
@@ -62,6 +69,7 @@ function transformCommentText(text) {
     .replace(/&#x27;/g, '\'')
     .replace(/&#x2F;/g, '/')
     .replace(/&quot;/g, '"')
+    .replace(/&amp;/g, '&')
     .replace(/<i>/, '')
     .replace(/<\/i>/, '')
     .replace(/&gt;/g, '>')
@@ -83,10 +91,11 @@ class HomeScreen extends Component {
 
     this.state = {
       refreshing: true,
+      page: 1,
       dataSource: this.ds.cloneWithRows([])
     };
 
-    fetchTopStories()
+    fetchTopStories(this.state.page)
       .then(stories => {
         this.setState({
           refreshing: false,
@@ -101,25 +110,21 @@ class HomeScreen extends Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <ListView
+        <StoriesListView
           dataSource={this.state.dataSource}
-          renderRow={(rowData) => (
-            <Story
-              onPress={() => navigate('CommentsArticle', { post: rowData })}
-              title={rowData.title}
-              points={rowData.points}
-              user={rowData.user}
-              timeAgo={rowData.time_ago}
-              commentsCount={rowData.comments_count} />
-          )}
-          refreshControl={
-            <RefreshControl
-              refreshing={this.state.refreshing}
-              onRefresh={this._onRefresh.bind(this)}
-            />
-          }
-          renderSeparator={this._renderSeparator}
-          enableEmptySections={true}
+          onStoryPress={(story) => navigate('CommentsArticle', { post: story })}
+          refreshing={this.state.refreshing}
+          onRefresh={this._onRefresh.bind(this)}
+          loadMore={() => {
+            const nextPage = this.state.page + 1;
+            this.setState({ page: nextPage });
+            fetchTopStories(nextPage)
+              .then(stories => {
+                this.setState({
+                  dataSource: this.ds.cloneWithRows(stories)
+                });
+              });
+          }}
         />
       </View>
     );
@@ -127,25 +132,13 @@ class HomeScreen extends Component {
 
   _onRefresh() {
     this.setState({ refreshing: true });
-    fetchTopStories()
+    fetchTopStories(this.state.page)
       .then(stories => {
         this.setState({
           refreshing: false,
           dataSource: this.ds.cloneWithRows(stories)
         });
       });
-  }
-
-  _renderSeparator(sectionID, rowID, adjacentRowHighlighted) {
-    return (
-      <View
-        key={`${sectionID}-${rowID}`}
-        style={{
-          height: adjacentRowHighlighted ? 4 : 1,
-          backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
-        }}
-      />
-    );
   }
 }
 

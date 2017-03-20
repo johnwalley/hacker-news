@@ -8,6 +8,7 @@ import {
 
 const styles = StyleSheet.create({
   container: {
+    backgroundColor: 'white',
     paddingLeft: 10,
     paddingRight: 10,
   },

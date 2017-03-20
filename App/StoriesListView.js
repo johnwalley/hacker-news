@@ -1,0 +1,45 @@
+import React from 'react';
+import {
+  ListView,
+  RefreshControl,
+  View
+} from 'react-native';
+
+import Footer from './Footer';
+import Story from './Story';
+
+const renderSeparator = (sectionID, rowID, adjacentRowHighlighted) =>
+  <View
+    key={`${sectionID}-${rowID}`}
+    style={{
+      height: adjacentRowHighlighted ? 4 : 1,
+      backgroundColor: adjacentRowHighlighted ? '#3B5998' : '#CCCCCC',
+    }}
+  />
+
+export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefresh, loadMore }) =>
+  <ListView
+    dataSource={dataSource}
+    renderRow={(rowData) => (
+      <Story
+        onPress={() => {
+          console.log(rowData);
+          onStoryPress(rowData);
+        }}
+        title={rowData.title}
+        points={rowData.points}
+        user={rowData.user}
+        timeAgo={rowData.time_ago}
+        commentsCount={rowData.comments_count} />
+    )}
+    refreshControl={
+      <RefreshControl
+        refreshing={refreshing}
+        onRefresh={onRefresh}
+      />
+    }
+    renderFooter={() => <Footer loadMore={loadMore} />}
+    renderSeparator={renderSeparator}
+    enableEmptySections={true}
+    pageSize={30}
+  />
