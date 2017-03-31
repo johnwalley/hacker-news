@@ -20,7 +20,7 @@ const renderSeparator = (sectionID, rowID, adjacentRowHighlighted) =>
 export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefresh, loadMore }) =>
   <ListView
     dataSource={dataSource}
-    renderRow={(rowData) => (
+    renderRow={(rowData, sectionID, rowID) => (
       <Story
         onPress={() => {
           console.log(rowData);
@@ -30,7 +30,8 @@ export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefr
         points={rowData.points}
         user={rowData.user}
         timeAgo={rowData.time_ago}
-        commentsCount={rowData.comments_count} />
+        commentsCount={rowData.comments_count}
+        key={rowID} />
     )}
     refreshControl={
       <RefreshControl
@@ -38,7 +39,7 @@ export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefr
         onRefresh={onRefresh}
       />
     }
-    renderFooter={() => <Footer loadMore={loadMore} />}
+    renderFooter={() => <Footer loadMore={loadMore} key="footer" />}
     renderSeparator={renderSeparator}
     enableEmptySections={true}
     pageSize={30}

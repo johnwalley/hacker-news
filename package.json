@@ -1,5 +1,5 @@
 {
-  "name": "HackerNews",
+  "name": "hacker-news",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -10,15 +10,27 @@
     "react": "~15.4.1",
     "react-native": "0.42.0",
     "react-native-hyperlink": "0.0.8",
+    "react-native-mock": "^0.3.1",
     "react-navigation": "^1.0.0-beta.6"
   },
   "devDependencies": {
     "babel-jest": "19.0.0",
     "babel-preset-react-native": "1.9.1",
+    "es6-promise": "^4.1.0",
+    "isomorphic-fetch": "^2.2.1",
     "jest": "19.0.2",
+    "jest-fetch-mock": "^1.0.8",
     "react-test-renderer": "~15.4.1"
   },
   "jest": {
-    "preset": "react-native"
+    "automock": false,
+    "preset": "react-native",
+    "testRegex": "./__tests__/[^setup].*.js$",
+    "transformIgnorePatterns": [
+      "node_modules/(?!react-native|react-navigation)/"
+    ],
+    "setupFiles": [
+      "./__tests__/setup.js"
+    ]
   }
 }
