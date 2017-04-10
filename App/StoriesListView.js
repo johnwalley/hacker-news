@@ -23,14 +23,14 @@ export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefr
     renderRow={(rowData, sectionID, rowID) => (
       <Story
         onPress={() => {
-          console.log(rowData);
           onStoryPress(rowData);
         }}
-        title={rowData.title}
+        title={rowData.id}
         points={rowData.points}
         user={rowData.user}
         timeAgo={rowData.time_ago}
         commentsCount={rowData.comments_count}
+        read={rowData.read}
         key={rowID} />
     )}
     refreshControl={

@@ -96,14 +96,17 @@ class HomeScreen extends Component {
     this.state = {
       refreshing: true,
       page: 1,
-      dataSource: this.ds.cloneWithRows([])
+      stories: {},
+      dataSource: this.ds.cloneWithRows([]),
+      readStories: new Set(),
     };
 
     fetchTopStories(this.state.page)
       .then(stories => {
         this.setState({
           refreshing: false,
-          dataSource: this.ds.cloneWithRows(stories)
+          stories: stories,
+          dataSource: this.ds.cloneWithRows(stories.map(story => ({ ...story, read: this.state.readStories.has(story.id) }))),
         });
       })
       .catch(error => console.log(error));
@@ -116,7 +119,14 @@ class HomeScreen extends Component {
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <StoriesListView
           dataSource={this.state.dataSource}
-          onStoryPress={(story) => navigate('CommentsArticle', { post: story })}
+          onStoryPress={(story) => {
+            const readStories = new Set(this.state.readStories).add(story.id);
+            this.setState({
+              readStories: readStories,
+              dataSource: this.ds.cloneWithRows(this.state.stories.map(story => ({ ...story, read: readStories.has(story.id) }))),
+            });
+            navigate('CommentsArticle', { post: story });
+          }}
           refreshing={this.state.refreshing}
           onRefresh={this._onRefresh.bind(this)}
           loadMore={() => {
@@ -140,7 +150,8 @@ class HomeScreen extends Component {
       .then(stories => {
         this.setState({
           refreshing: false,
-          dataSource: this.ds.cloneWithRows(stories)
+          stories: stories,
+          dataSource: this.ds.cloneWithRows(stories.map(story => ({ ...story, read: this.state.readStories.has(story.id) }))),
         });
       });
   }
@@ -165,14 +176,14 @@ class CommentsScreen extends React.Component {
 
     this.state = {
       refreshing: true,
-      dataSource: this.ds.cloneWithRows([])
+      dataSource: this.ds.cloneWithRows([]),
     };
 
     fetchItem(props.navigation.state.params.post.id)
       .then(item => {
         this.setState({
           refreshing: false,
-          dataSource: this.ds.cloneWithRows(flattenComments(item))
+          dataSource: this.ds.cloneWithRows(flattenComments(item)),
         });
       })
       .catch(error => console.log(error));
@@ -208,7 +219,7 @@ class CommentsScreen extends React.Component {
       .then(item => {
         this.setState({
           refreshing: false,
-          dataSource: this.ds.cloneWithRows(flattenComments(item))
+          dataSource: this.ds.cloneWithRows(flattenComments(item)),
         });
       });
   }

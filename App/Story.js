@@ -28,11 +28,11 @@ const styles = StyleSheet.create({
   },
 });
 
-export default Story = ({ onPress, title, points, user, timeAgo, commentsCount }) =>
+export default Story = ({ onPress, title, points, user, timeAgo, commentsCount, read }) =>
   <TouchableHighlight
     onPress={onPress}>
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[styles.title, read && { color: 'grey' }]}>{title}</Text>
       <Text style={styles.details}>{points} points by {user} {timeAgo} | {commentsCount || 0} comments</Text>
     </View>
   </TouchableHighlight >
