@@ -39,7 +39,7 @@ export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefr
         onRefresh={onRefresh}
       />
     }
-    renderFooter={() => <Footer loadMore={loadMore} key="footer" />}
+    renderFooter={() => dataSource.getRowCount() > 0 ? <Footer loadMore={loadMore} key="footer" /> : null}
     renderSeparator={renderSeparator}
     enableEmptySections={true}
     pageSize={30}
