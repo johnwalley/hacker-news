@@ -1,6 +1,5 @@
 import React, { Component } from 'react';
 import {
-  AppRegistry,
   ListView,
   RefreshControl,
   StyleSheet,
@@ -50,7 +49,7 @@ async function fetchItem(id) {
   }
 }
 
-function flattenComments(item) {
+export function flattenComments(item) {
   function traverse(item, list) {
     list.push(item);
     item.comments.map(it => traverse(it, list));
@@ -62,7 +61,7 @@ function flattenComments(item) {
   return list;
 }
 
-function transformCommentText(text) {
+export function transformCommentText(text) {
   return String(text)
     .replace(/^<p>/, '')
     .replace(/<p>/g, '\n\n')
@@ -73,6 +72,7 @@ function transformCommentText(text) {
     .replace(/<i>/, '')
     .replace(/<\/i>/, '')
     .replace(/&gt;/g, '>')
+    .replace(/&lt;/g, '<')
     .replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)" rel="nofollow">(.*)?<\/a>/g, "$1");
 }
 
@@ -182,8 +182,8 @@ class CommentsScreen extends React.Component {
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
         <ListView
           dataSource={this.state.dataSource}
-          renderRow={(rowData) => (
-            <Comment level={rowData.level} content={transformCommentText(rowData.content)} user={rowData.user} timeAgo={rowData.time_ago} />
+          renderRow={(rowData, sectionID, rowID) => (
+            <Comment level={rowData.level} content={transformCommentText(rowData.content)} user={rowData.user} timeAgo={rowData.time_ago} key={rowID} />
           )}
           refreshControl={
             <RefreshControl
@@ -260,9 +260,7 @@ const CommentsArticle = TabNavigator(
   }
 );
 
-const HackerNews = StackNavigator({
+export default HackerNews = StackNavigator({
   Home: { screen: HomeScreen },
   CommentsArticle: { screen: CommentsArticle },
 });
-
-AppRegistry.registerComponent('HackerNews', () => HackerNews);
