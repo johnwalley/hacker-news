@@ -25,7 +25,7 @@ export default StoriesListView = ({ dataSource, onStoryPress, refreshing, onRefr
         onPress={() => {
           onStoryPress(rowData);
         }}
-        title={rowData.id}
+        title={rowData.title}
         points={rowData.points}
         user={rowData.user}
         timeAgo={rowData.time_ago}
