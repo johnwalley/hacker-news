@@ -252,9 +252,15 @@ class ArticleScreen extends React.Component {
   render() {
     const { params } = this.props.navigation.state;
 
+    let url = params.post.url;
+
+    if (params.post.type === 'ask') {
+      url = 'https://news.ycombinator.com/' + url;
+    }
+
     return (
       <WebView
-        source={{ uri: params.post.url }}
+        source={{ uri: url }}
       />
     );
   }
