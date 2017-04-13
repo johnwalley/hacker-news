@@ -273,9 +273,9 @@ const CommentsArticle = TabNavigator(
   },
   {
     tabBarOptions: {
-      activeTintColor: '#FFFFFF',
+      activeTintColor: '#000000',
       style: {
-        backgroundColor: '#aa3300',
+        backgroundColor: '#ff983f',
       },
     }
   }
