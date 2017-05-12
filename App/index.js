@@ -69,8 +69,8 @@ export function transformCommentText(text) {
     .replace(/&#x2F;/g, '/')
     .replace(/&quot;/g, '"')
     .replace(/&amp;/g, '&')
-    .replace(/<i>/, '')
-    .replace(/<\/i>/, '')
+    .replace(/<i>/g, '')
+    .replace(/<\/i>/g, '')
     .replace(/&gt;/g, '>')
     .replace(/&lt;/g, '<')
     .replace(/<a\s+(?:[^>]*?\s+)?href="([^"]*)" rel="nofollow">(.*)?<\/a>/g, "$1");
@@ -180,6 +180,9 @@ class CommentsScreen extends React.Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
+        <Text>
+          {this.props.navigation.state.params.post.id}
+        </Text>
         <ListView
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) => (
