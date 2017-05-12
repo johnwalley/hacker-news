@@ -180,9 +180,6 @@ class CommentsScreen extends React.Component {
 
     return (
       <View style={{ flex: 1, backgroundColor: '#FFFFFF' }}>
-        <Text>
-          {this.props.navigation.state.params.post.id}
-        </Text>
         <ListView
           dataSource={this.state.dataSource}
           renderRow={(rowData, sectionID, rowID) => (
